@@ -1,4 +1,5 @@
 bin_PROGRAMS=sshpass
-man1_MANS = sshpass.man
+man_MANS = sshpass.1
+EXTRA_DIST = $(man_MANS)
 
 sshpass_SOURCES=main.c
