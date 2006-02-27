@@ -55,6 +55,7 @@ static void show_help()
 	    "   -f filename   Take password to use from file\n"
 	    "   -d number     Use number as file descriptor for getting password\n"
 	    "   -p password   Provide password as argument (security unwise)\n"
+	    "   -e            Password is passed as env-var \"SSHPASS\"\n"
 	    "   With no parameters - password will be taken from stdin\n\n"
 	    "   -h            Show help (this screen)\n"
 	    "At most one of -f, -d or -p should be used\n");
@@ -75,7 +76,7 @@ static int parse_options( int argc, char *argv[] )
     fprintf(stderr, "Conflicting password source\n"); \
     error=-3; }
 
-    while( (opt=getopt(argc, argv, "+f:d:p:h"))!=-1 && error==0 ) {
+    while( (opt=getopt(argc, argv, "+f:d:p:he"))!=-1 && error==0 ) {
 	switch( opt ) {
 	case 'f':
 	    // Password should come from a file
@@ -97,6 +98,12 @@ static int parse_options( int argc, char *argv[] )
 
 	    args.pwtype=PWT_PASS;
 	    args.pwsrc.password=optarg;
+	    break;
+	case 'e':
+	    VIRGIN_PWTYPE;
+
+	    args.pwtype=PWT_PASS;
+	    args.pwsrc.password=getenv("SSHPASS");
 	    break;
 	case '?':
 	case ':':
