@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT([sshpass], [0.01])
+AC_INIT([sshpass], [0.02])
 AM_INIT_AUTOMAKE
 AC_COPYRIGHT([Copyright (C) 2006 Lingnu Open Source Consulting Ltd.])
 AC_CONFIG_SRCDIR([main.c])
