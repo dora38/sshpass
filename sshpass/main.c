@@ -58,7 +58,7 @@ static void show_help()
 	    "   -e            Password is passed as env-var \"SSHPASS\"\n"
 	    "   With no parameters - password will be taken from stdin\n\n"
 	    "   -h            Show help (this screen)\n"
-	    "At most one of -f, -d or -p should be used\n");
+	    "At most one of -f, -d, -p or -e should be used\n");
 }
 
 // Parse the command line. Fill in the "args" global struct with the results. Return argv offset
