@@ -220,7 +220,7 @@ void handleoutput( int fd )
 {
     // We are looking for the string
     static int state;
-    static const char compare[]="Password: ";
+    static const char compare[]="assword:";
     char buffer[40];
 
     int numread=read(fd, buffer, sizeof(buffer) );
