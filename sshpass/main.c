@@ -58,6 +58,7 @@ static void show_help()
 	    "   -e            Password is passed as env-var \"SSHPASS\"\n"
 	    "   With no parameters - password will be taken from stdin\n\n"
 	    "   -h            Show help (this screen)\n"
+	    "   -V            Print version information\n"
 	    "At most one of -f, -d, -p or -e should be used\n");
 }
 
@@ -76,7 +77,7 @@ static int parse_options( int argc, char *argv[] )
     fprintf(stderr, "Conflicting password source\n"); \
     error=-3; }
 
-    while( (opt=getopt(argc, argv, "+f:d:p:he"))!=-1 && error==0 ) {
+    while( (opt=getopt(argc, argv, "+f:d:p:heV"))!=-1 && error==0 ) {
 	switch( opt ) {
 	case 'f':
 	    // Password should come from a file
@@ -111,6 +112,12 @@ static int parse_options( int argc, char *argv[] )
 	    break;
 	case 'h':
 	    error=-1;
+	    break;
+	case 'V':
+	    printf("%s (C) 2006 Lingnu Open Source Consulting Ltd.\n"
+		    "This program is free software, and can be distributed under the terms of the GPL\n"
+		    "See the COPYING file for more information.\n", PACKAGE_STRING );
+	    exit(0);
 	    break;
 	}
     }

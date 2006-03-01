@@ -2,6 +2,7 @@ Version 0.03
 	* Change the match string from "Password: " to "assword:", as some ssh
 	  usage uses a different prompt ("foo@bar's password:" instead of a
 	  clean "Password:").
+	* Add the "-V" option to display the version information
 
 Version 0.02
 	* Add the "-e" option.
