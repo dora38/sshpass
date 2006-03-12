@@ -59,7 +59,7 @@ end to sshpass using the \-d option.
 Run rsync over SSH using password authentication, passing the password on the
 command line:
 .PP
-rsync --rsh='sshpass -p 12345 ssh -l test' host.example.com:path .
+rsync \-\-rsh='sshpass \-p 12345 ssh \-l test' host.example.com:path .
 .SH BUGS
 .P
 Sshpass is in its infancy at the moment. As such, bugs are highly possible. In
