@@ -193,10 +193,13 @@ int runprogram( int argc, char *argv[] )
 
 	execvp( new_argv[0], new_argv );
 
+	perror("sshpass: Failed to run command");
+
 	exit(errno);
     } else if( childpid<0 ) {
-	// Fork failed
-	return 1;
+	perror("sshpass: Failed to create child process");
+
+	return errno;
     }
 	
     // We are the parent

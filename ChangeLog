@@ -1,6 +1,7 @@
 Version 0.04
 	* Make sure that authentication failures are terminated early.
 	* Better detect when the child has exited.
+	* Improve error reporting.
 
 Version 0.03
 	* Change the match string from "Password: " to "assword:", as some ssh
