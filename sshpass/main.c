@@ -196,31 +196,40 @@ int runprogram( int argc, char *argv[] )
 	exit(errno);
     } else if( childpid<0 ) {
 	// Fork failed
+	return 1;
     }
 	
+    // We are the parent
     int status=0;
+    int terminate=0;
     pid_t wait_id;
     do {
-	fd_set readfd;
+	if( !terminate ) {
+	    fd_set readfd;
 
-	FD_ZERO(&readfd);
-	FD_SET(masterpt, &readfd);
+	    FD_ZERO(&readfd);
+	    FD_SET(masterpt, &readfd);
 
-	int selret=select( masterpt+1, &readfd, NULL, NULL, NULL );
+	    int selret=select( masterpt+1, &readfd, NULL, NULL, NULL );
 
-	if( selret>0 ) {
-	    if( FD_ISSET( masterpt, &readfd ) ) {
-		if( handleoutput( masterpt ) ) {
-		    // Authentication failed - need to abort
-		    close( masterpt ); // Signal ssh that it's controlling TTY is now closed
-		    return 255;
+	    if( selret>0 ) {
+		if( FD_ISSET( masterpt, &readfd ) ) {
+		    if( handleoutput( masterpt ) ) {
+			// Authentication failed - need to abort
+			close( masterpt ); // Signal ssh that it's controlling TTY is now closed
+			terminate=255; // This is what openssh returns on authentication errors
+		    }
 		}
 	    }
+	    wait_id=waitpid( childpid, &status, WNOHANG );
+	} else {
+	    wait_id=waitpid( childpid, &status, 0 );
 	}
-	wait_id=waitpid( childpid, &status, WNOHANG );
     } while( wait_id==0 || !WIFEXITED( status ) && !WIFSIGNALED( status ) );
 
-    if( WIFEXITED( status ) )
+    if( terminate!=0 )
+	return terminate;
+    else if( WIFEXITED( status ) )
 	return WEXITSTATUS(status);
     else
 	return 255;
