@@ -1,3 +1,7 @@
+Version 0.04
+	* Make sure that authentication failures are terminated early.
+	* Better detect when the child has exited.
+
 Version 0.03
 	* Change the match string from "Password: " to "assword:", as some ssh
 	  usage uses a different prompt ("foo@bar's password:" instead of a

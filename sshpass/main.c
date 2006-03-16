@@ -145,7 +145,7 @@ int main( int argc, char *argv[] )
     return runprogram( argc-opt_offset, argv+opt_offset );
 }
 
-void handleoutput( int fd );
+int handleoutput( int fd );
 
 int runprogram( int argc, char *argv[] )
 {
@@ -194,50 +194,67 @@ int runprogram( int argc, char *argv[] )
 	execvp( new_argv[0], new_argv );
 
 	exit(errno);
-    } else if( childpid>0 ) {
-	int status;
+    } else if( childpid<0 ) {
+	// Fork failed
+    }
 	
-	do {
-	    fd_set readfd;
-	    
-	    FD_ZERO(&readfd);
-	    FD_SET(masterpt, &readfd);
+    int status=0;
+    pid_t wait_id;
+    do {
+	fd_set readfd;
 
-	    int selret=select( masterpt+1, &readfd, NULL, NULL, NULL );
+	FD_ZERO(&readfd);
+	FD_SET(masterpt, &readfd);
 
-	    if( selret>0 ) {
-		if( FD_ISSET( masterpt, &readfd ) ) {
-		    handleoutput( masterpt );
+	int selret=select( masterpt+1, &readfd, NULL, NULL, NULL );
+
+	if( selret>0 ) {
+	    if( FD_ISSET( masterpt, &readfd ) ) {
+		if( handleoutput( masterpt ) ) {
+		    // Authentication failed - need to abort
+		    close( masterpt ); // Signal ssh that it's controlling TTY is now closed
+		    return 255;
 		}
 	    }
-	    waitpid( childpid, &status, WNOHANG );
-	} while( !WIFEXITED( status ) );
+	}
+	wait_id=waitpid( childpid, &status, WNOHANG );
+    } while( wait_id==0 || !WIFEXITED( status ) && !WIFSIGNALED( status ) );
 
-	//fprintf(stderr, "Done\n");
-    } else {
-    }
-
-    return 0;
+    if( WIFEXITED( status ) )
+	return WEXITSTATUS(status);
+    else
+	return 255;
 }
 
 int match( const char *reference, const char *buffer, ssize_t bufsize, int state );
 void write_pass( int fd );
 
-void handleoutput( int fd )
+int handleoutput( int fd )
 {
     // We are looking for the string
+    static int prevmatch=0; // If the "password" prompt is repeated, we have the wrong password.
     static int state;
     static const char compare[]="assword:";
     char buffer[40];
+    int ret=0;
 
     int numread=read(fd, buffer, sizeof(buffer) );
 
     state=match( compare, buffer, numread, state );
 
     if( compare[state]=='\0' ) {
-	write_pass( fd );
-	state=0;
+	if( !prevmatch ) {
+	    write_pass( fd );
+	    state=0;
+	    prevmatch=1;
+	} else {
+	    // Wrong password - terminate with proper error code
+	    ret=1;
+	}
     }
+
+
+    return ret;
 }
 
 int match( const char *reference, const char *buffer, ssize_t bufsize, int state )
