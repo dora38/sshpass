@@ -225,7 +225,7 @@ int runprogram( int argc, char *argv[] )
 	} else {
 	    wait_id=waitpid( childpid, &status, 0 );
 	}
-    } while( wait_id==0 || !WIFEXITED( status ) && !WIFSIGNALED( status ) );
+    } while( wait_id==0 || (!WIFEXITED( status ) && !WIFSIGNALED( status )) );
 
     if( terminate!=0 )
 	return terminate;
