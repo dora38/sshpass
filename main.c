@@ -191,9 +191,10 @@ int runprogram( int argc, char *argv[] )
 	setsid();
 	
 	const char *name=ptsname(masterpt);
-	int slavept=open(name, O_RDWR );
+	int slavept=open(name, O_RDWR ); // This line makes the ptty our controlling tty. We do not otherwise need it open
 	//fprintf(stderr, "Opened %s with fd %d\n", name, slavept);
 	close( masterpt );
+        close( slavept );
 
 	char **new_argv=malloc(sizeof(char *)*(argc+1));
 
