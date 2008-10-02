@@ -14,12 +14,21 @@ AC_PROG_CC
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h unistd.h])
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/ioctl.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_TYPE_PID_T
+AC_TYPE_SSIZE_T
 
 # Checks for library functions.
+AC_FUNC_FORK
+AC_PROG_GCC_TRADITIONAL
+AC_FUNC_MALLOC
+AC_FUNC_SELECT_ARGTYPES
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS([select])
 
 AC_CONFIG_FILES([Makefile])
 AM_CONFIG_HEADER(config.h)
