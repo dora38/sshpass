@@ -30,12 +30,24 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#if HAVE_TERMIOS_H
+#include <termios.h>
+#endif
 //#include <asm/ioctls.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+
+// Some systems don't define posix_openpt
+#ifndef HAVE_POSIX_OPENPT
+int
+posix_openpt(int flags)
+{
+    return open("/dev/ptmx", flags);
+}
+#endif
 
 int runprogram( int argc, char *argv[] );
 
