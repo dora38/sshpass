@@ -1,4 +1,6 @@
+Version 1.02
 	* Various updates to the tests done by the configure script
+	* Broader platform support (cygwin)
 
 Version 1.01
 	* Make sshpass pass along tty window resize events to the inner tty
