@@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE
 AC_COPYRIGHT([Copyright (C) 2006,2008 Lingnu Open Source Consulting Ltd.])
 AC_CONFIG_SRCDIR([main.c])
 
+AC_USE_SYSTEM_EXTENSIONS
+
 # Checks for programs.
 AC_PROG_CC
 

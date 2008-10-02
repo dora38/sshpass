@@ -21,7 +21,6 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#define _GNU_SOURCE
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -157,7 +156,7 @@ int runprogram( int argc, char *argv[] )
 {
     struct winsize ttysize; // The size of our tty
     // Create a pseudo terminal for our process
-    masterpt=getpt();
+    masterpt=posix_openpt(O_RDWR);
 
     if( masterpt==-1 ) {
 	perror("Failed to get a pseudo terminal");
