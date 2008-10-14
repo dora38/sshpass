@@ -33,7 +33,6 @@
 #if HAVE_TERMIOS_H
 #include <termios.h>
 #endif
-//#include <asm/ioctls.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +61,7 @@ struct {
 
 static void show_help()
 {
-    printf("Usage: " PACKAGE_NAME " -fdph command parameters\n"
+    printf("Usage: " PACKAGE_NAME " [-f|-d|-p|-e] [-hV] command parameters\n"
 	    "   -f filename   Take password to use from file\n"
 	    "   -d number     Use number as file descriptor for getting password\n"
 	    "   -p password   Provide password as argument (security unwise)\n"
@@ -147,10 +146,7 @@ int main( int argc, char *argv[] )
 	// There was some error
 	show_help();
 
-	if( opt_offset==-1 )
-	    return 0;
-	else
-	    return -opt_offset;
+        return -(opt_offset+1); // -1 becomes 0, -2 becomes 1 etc.
     }
 
     return runprogram( argc-opt_offset, argv+opt_offset );
