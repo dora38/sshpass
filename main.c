@@ -39,6 +39,17 @@
 #include <errno.h>
 #include <string.h>
 
+enum program_return_codes {
+    RETURN_NOERROR,
+    RETURN_INVALID_ARGUMENTS,
+    RETURN_CONFLICTING_ARGUMENTS,
+    RETURN_RUNTIME_ERROR,
+    RETURN_PARSE_ERRROR,
+    RETURN_INCORRECT_PASSWORD,
+    RETURN_HOST_KEY_UNKNOWN,
+    RETURN_HOST_KEY_CHANGED,
+};
+
 // Some systems don't define posix_openpt
 #ifndef HAVE_POSIX_OPENPT
 int
@@ -76,7 +87,7 @@ static void show_help()
 // on success, and a negative number on failure
 static int parse_options( int argc, char *argv[] )
 {
-    int error=0;
+    int error=-1;
     int opt;
 
     // Set the default password source to stdin
@@ -85,9 +96,9 @@ static int parse_options( int argc, char *argv[] )
 
 #define VIRGIN_PWTYPE if( args.pwtype!=PWT_STDIN ) { \
     fprintf(stderr, "Conflicting password source\n"); \
-    error=-3; }
+    error=RETURN_CONFLICTING_ARGUMENTS; }
 
-    while( (opt=getopt(argc, argv, "+f:d:p:heV"))!=-1 && error==0 ) {
+    while( (opt=getopt(argc, argv, "+f:d:p:heV"))!=-1 && error==-1 ) {
 	switch( opt ) {
 	case 'f':
 	    // Password should come from a file
@@ -118,10 +129,10 @@ static int parse_options( int argc, char *argv[] )
 	    break;
 	case '?':
 	case ':':
-	    error=-2;
+	    error=RETURN_INVALID_ARGUMENTS;
 	    break;
 	case 'h':
-	    error=-1;
+	    error=RETURN_NOERROR;
 	    break;
 	case 'V':
 	    printf("%s (C) 2006 Lingnu Open Source Consulting Ltd.\n"
@@ -132,10 +143,10 @@ static int parse_options( int argc, char *argv[] )
 	}
     }
 
-    if( error==0 )
-	return optind;
+    if( error>=0 )
+	return -(error+1);
     else
-	return error;
+	return optind;
 }
 
 int main( int argc, char *argv[] )
@@ -169,18 +180,18 @@ int runprogram( int argc, char *argv[] )
     if( masterpt==-1 ) {
 	perror("Failed to get a pseudo terminal");
 
-	return 1;
+	return RETURN_RUNTIME_ERROR;
     }
 
     if( grantpt( masterpt )!=0 ) {
 	perror("Failed to change pseudo terminal's permission");
 
-	return 1;
+	return RETURN_RUNTIME_ERROR;
     }
     if( unlockpt( masterpt )!=0 ) {
 	perror("Failed to unlock pseudo terminal");
 
-	return 1;
+	return RETURN_RUNTIME_ERROR;
     }
 
     ourtty=open("/dev/tty", 0);
@@ -217,11 +228,11 @@ int runprogram( int argc, char *argv[] )
 
 	perror("sshpass: Failed to run command");
 
-	exit(errno);
+	exit(RETURN_RUNTIME_ERROR);
     } else if( childpid<0 ) {
 	perror("sshpass: Failed to create child process");
 
-	return errno;
+	return RETURN_RUNTIME_ERROR;
     }
 	
     // We are the parent
