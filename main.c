@@ -135,7 +135,7 @@ static int parse_options( int argc, char *argv[] )
 	    error=RETURN_NOERROR;
 	    break;
 	case 'V':
-	    printf("%s (C) 2006 Lingnu Open Source Consulting Ltd.\n"
+	    printf("%s (C) 2006-2008 Lingnu Open Source Consulting Ltd.\n"
 		    "This program is free software, and can be distributed under the terms of the GPL\n"
 		    "See the COPYING file for more information.\n", PACKAGE_STRING );
 	    exit(0);
@@ -250,10 +250,11 @@ int runprogram( int argc, char *argv[] )
 
 	    if( selret>0 ) {
 		if( FD_ISSET( masterpt, &readfd ) ) {
-		    if( handleoutput( masterpt ) ) {
+                    int ret;
+		    if( (ret=handleoutput( masterpt )) ) {
 			// Authentication failed - need to abort
 			close( masterpt ); // Signal ssh that it's controlling TTY is now closed
-			terminate=255; // This is what openssh returns on authentication errors
+			terminate=ret;
 		    }
 		}
 	    }
@@ -294,7 +295,7 @@ int handleoutput( int fd )
 	    prevmatch=1;
 	} else {
 	    // Wrong password - terminate with proper error code
-	    ret=1;
+	    ret=RETURN_INCORRECT_PASSWORD;
 	}
     }
 
