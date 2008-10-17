@@ -1,3 +1,7 @@
+	* Sshpass will now exit if ssh is asking to confirm a host key
+	* Sshpass now has verbose reporting of what error occured through the
+	  program's return codes.
+
 Version 1.02
 	* Various updates to the tests done by the configure script
 	* Broader platform support (cygwin)

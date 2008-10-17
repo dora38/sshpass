@@ -75,10 +75,13 @@ Unrecognized response from ssh (parse error)
 Invalid/incorrect password
 .TP
 6
-Host public key is unknown
-.TP
-7
-Host public key has changed - possible man in the middle attack in progress
+Host public key is unknown. sshpass exits without confirming the new key.
+.P
+In addition, ssh might be complaining about a man in the middle attack. This
+complaint does not go to the tty. In other words, even with sshpass, the error
+message from ssh is printed to standard error. In such a case ssh's return code
+is reported back. This is typically an unimaginative (and non-informative) "255"
+for all error cases.
 .SH EXAMPLES
 .P
 Run rsync over SSH using password authentication, passing the password on the

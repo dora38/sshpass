@@ -279,19 +279,24 @@ int handleoutput( int fd )
 {
     // We are looking for the string
     static int prevmatch=0; // If the "password" prompt is repeated, we have the wrong password.
-    static int state;
-    static const char compare[]="assword:";
+    static int state1, state2, state3;
+    static const char compare1[]="assword:"; // Asking for a password
+    static const char compare2[]="The authenticity of host "; // Asks to authenticate host
+    // static const char compare3[]="WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!"; // Warns about man in the middle attack
+    // The remote identification changed error is sent to stderr, not the tty, so we do not handle it.
+    // This is not a problem, as ssh exists immediately in such a case
     char buffer[40];
     int ret=0;
 
     int numread=read(fd, buffer, sizeof(buffer) );
 
-    state=match( compare, buffer, numread, state );
+    state1=match( compare1, buffer, numread, state1 );
 
-    if( compare[state]=='\0' ) {
+    // Are we at a password prompt?
+    if( compare1[state1]=='\0' ) {
 	if( !prevmatch ) {
 	    write_pass( fd );
-	    state=0;
+	    state1=0;
 	    prevmatch=1;
 	} else {
 	    // Wrong password - terminate with proper error code
@@ -299,6 +304,14 @@ int handleoutput( int fd )
 	}
     }
 
+    if( ret==0 ) {
+        state2=match( compare2, buffer, numread, state2 );
+
+        // Are we being prompted to authenticate the host?
+        if( compare2[state2]=='\0' ) {
+            ret=RETURN_HOST_KEY_UNKNOWN;
+        }
+    }
 
     return ret;
 }
