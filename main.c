@@ -126,6 +126,11 @@ static int parse_options( int argc, char *argv[] )
 
 	    args.pwtype=PWT_PASS;
 	    args.pwsrc.password=getenv("SSHPASS");
+            if( args.pwsrc.password==NULL ) {
+                fprintf(stderr, "sshpass: -e option given but SSHPASS environment variable not set\n");
+
+                error=RETURN_INVALID_ARGUMENTS;
+            }
 	    break;
 	case '?':
 	case ':':
