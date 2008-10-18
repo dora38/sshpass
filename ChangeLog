@@ -1,5 +1,7 @@
 	* Fix crash when "-e" is given but environment variable is not set -
 	  based on patch suggested by Samuel Rios Carvalho.
+	* Fix 100% CPU usage during session. Reported by anonymous on the
+	  SourceForge bug tracking system.
 
 Version 1.03
 	* Sshpass will now exit if ssh is asking to confirm a host key

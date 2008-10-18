@@ -214,10 +214,13 @@ int runprogram( int argc, char *argv[] )
 	setsid();
 	
 	const char *name=ptsname(masterpt);
-	int slavept=open(name, O_RDWR ); // This line makes the ptty our controlling tty. We do not otherwise need it open
-	//fprintf(stderr, "Opened %s with fd %d\n", name, slavept);
+	int slavept;
+        slavept=open(name, O_RDWR ); // This line makes the ptty our controlling tty. We do not otherwise need it open
+        // On separate line to confuse gcc into not giving a (technically correct) "unused variable" warning.
+        // This place used to have: close( slavept );
+        // We do not run the above line. See comment 3.1416 later for explanation
+
 	close( masterpt );
-        close( slavept );
 
 	char **new_argv=malloc(sizeof(char *)*(argc+1));
 
@@ -257,8 +260,13 @@ int runprogram( int argc, char *argv[] )
 		if( FD_ISSET( masterpt, &readfd ) ) {
                     int ret;
 		    if( (ret=handleoutput( masterpt )) ) {
-			// Authentication failed - need to abort
-			close( masterpt ); // Signal ssh that it's controlling TTY is now closed
+			// Authentication failed or any other error
+
+                        // handleoutput returns positive error number in case of some error, and a negative value
+                        // if all that happened is that the slave end of the pt is closed.
+                        if( ret>0 )
+                            close( masterpt ); // Signal ssh that it's controlling TTY is now closed
+
 			terminate=ret;
 		    }
 		}
@@ -269,7 +277,7 @@ int runprogram( int argc, char *argv[] )
 	}
     } while( wait_id==0 || (!WIFEXITED( status ) && !WIFSIGNALED( status )) );
 
-    if( terminate!=0 )
+    if( terminate>0 )
 	return terminate;
     else if( WIFEXITED( status ) )
 	return WEXITSTATUS(status);
@@ -294,6 +302,16 @@ int handleoutput( int fd )
     int ret=0;
 
     int numread=read(fd, buffer, sizeof(buffer) );
+
+    if( numread<0 ) {
+        // Comment no. 3.1416
+        // Select is doing a horrid job of waking us up at the right time - it wakes up with "read ready" when the slave
+        // end of the pty is closed. This result in an IO error when we perform a read. In the general case, this does
+        // not mean that the master is no more of use, as it may still be that the client will open /dev/tty and send data.
+        // In our case, we keep the slave end open (leaking a file descriptor - the price you pay for API insanity), and so
+        // a failure here suggest ssh is ready to exit.
+        return -1;
+    }
 
     state1=match( compare1, buffer, numread, state1 );
 
