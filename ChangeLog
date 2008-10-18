@@ -2,6 +2,9 @@
 	  based on patch suggested by Samuel Rios Carvalho.
 	* Fix 100% CPU usage during session. Reported by anonymous on the
 	  SourceForge bug tracking system.
+	* Attempt to hide a password provided on the command line. It does
+	  expose the password length. Base on a patch by anonymous from the
+	  sourceforge bug tracking system.
 
 Version 1.03
 	* Sshpass will now exit if ssh is asking to confirm a host key

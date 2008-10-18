@@ -119,7 +119,15 @@ static int parse_options( int argc, char *argv[] )
 	    VIRGIN_PWTYPE;
 
 	    args.pwtype=PWT_PASS;
-	    args.pwsrc.password=optarg;
+	    args.pwsrc.password=strdup(optarg);
+            
+            // Hide the original password from the command line
+            {
+                int i;
+
+                for( i=0; optarg[i]!='\0'; ++i )
+                    optarg[i]='z';
+            }
 	    break;
 	case 'e':
 	    VIRGIN_PWTYPE;
