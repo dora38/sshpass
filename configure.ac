@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT([sshpass], [1.03])
+AC_INIT([sshpass], [1.04])
 AM_INIT_AUTOMAKE
 AC_COPYRIGHT([Copyright (C) 2006,2008 Lingnu Open Source Consulting Ltd.])
 AC_CONFIG_SRCDIR([main.c])
@@ -30,7 +30,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([select posix_openpt])
+AC_CHECK_FUNCS([select posix_openpt strdup])
 
 AC_CONFIG_FILES([Makefile])
 AM_CONFIG_HEADER(config.h)

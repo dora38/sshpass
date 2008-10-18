@@ -1,3 +1,4 @@
+Version 1.04
 	* Fix crash when "-e" is given but environment variable is not set -
 	  based on patch suggested by Samuel Rios Carvalho.
 	* Fix 100% CPU usage during session. Reported by anonymous on the
