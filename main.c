@@ -174,6 +174,12 @@ int main( int argc, char *argv[] )
         return -(opt_offset+1); // -1 becomes 0, -2 becomes 1 etc.
     }
 
+    if( argc-opt_offset<1 ) {
+	show_help();
+
+        return 0;
+    }
+
     return runprogram( argc-opt_offset, argv+opt_offset );
 }
 
