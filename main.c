@@ -290,6 +290,17 @@ int runprogram( int argc, char *argv[] )
     int status=0;
     int terminate=0;
     pid_t wait_id;
+    sigset_t sigmask, sigmask_select;
+
+    // Set the signal mask during the select
+    sigemptyset(&sigmask_select);
+
+    // And during the regular run
+    sigemptyset(&sigmask);
+    sigaddset(&sigmask, SIGCHLD);
+
+    sigprocmask( SIG_SETMASK, &sigmask, NULL );
+
     do {
 	if( !terminate ) {
 	    fd_set readfd;
@@ -297,7 +308,7 @@ int runprogram( int argc, char *argv[] )
 	    FD_ZERO(&readfd);
 	    FD_SET(masterpt, &readfd);
 
-	    int selret=select( masterpt+1, &readfd, NULL, NULL, NULL );
+	    int selret=pselect( masterpt+1, &readfd, NULL, NULL, NULL, &sigmask_select );
 
 	    if( selret>0 ) {
 		if( FD_ISSET( masterpt, &readfd ) ) {
