@@ -1,3 +1,9 @@
+Version 1.05
+	* OpenSSH version 5.6 closed our leaked slave PTY fd, breaking sshpass.
+	  This reverted the "better detection of child exit", unfortunately.
+	* Update the manual page about changes.
+	* Print usage information if no arguments given.
+
 Version 1.04
 	* Fix crash when "-e" is given but environment variable is not set -
 	  based on patch suggested by Samuel Rios Carvalho.

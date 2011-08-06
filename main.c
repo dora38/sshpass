@@ -149,7 +149,7 @@ static int parse_options( int argc, char *argv[] )
 	    error=RETURN_NOERROR;
 	    break;
 	case 'V':
-	    printf("%s (C) 2006-2008 Lingnu Open Source Consulting Ltd.\n"
+	    printf("%s (C) 2006-2011 Lingnu Open Source Consulting Ltd.\n"
 		    "This program is free software, and can be distributed under the terms of the GPL\n"
 		    "See the COPYING file for more information.\n", PACKAGE_STRING );
 	    exit(0);
