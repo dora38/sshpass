@@ -365,7 +365,7 @@ int handleoutput( int fd )
     // We are looking for the string
     static int prevmatch=0; // If the "password" prompt is repeated, we have the wrong password.
     static int state1, state2;
-    static const char *compare1="assword:"; // Asking for a password
+    static const char *compare1=PASSWORD_PROMPT; // Asking for a password
     static const char compare2[]="The authenticity of host "; // Asks to authenticate host
     // static const char compare3[]="WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!"; // Warns about man in the middle attack
     // The remote identification changed error is sent to stderr, not the tty, so we do not handle it.
