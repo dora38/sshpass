@@ -157,7 +157,9 @@ static int parse_options( int argc, char *argv[] )
 	case 'V':
 	    printf("%s (C) 2006-2011 Lingnu Open Source Consulting Ltd.\n"
 		    "This program is free software, and can be distributed under the terms of the GPL\n"
-		    "See the COPYING file for more information.\n", PACKAGE_STRING );
+		    "See the COPYING file for more information.\n"
+                    "\n"
+                    "Using \"%s\" as the default password prompt indicator.\n", PACKAGE_STRING, PASSWORD_PROMPT );
 	    exit(0);
 	    break;
 	}
@@ -370,7 +372,7 @@ int handleoutput( int fd )
     // static const char compare3[]="WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!"; // Warns about man in the middle attack
     // The remote identification changed error is sent to stderr, not the tty, so we do not handle it.
     // This is not a problem, as ssh exists immediately in such a case
-    char buffer[40];
+    char buffer[256];
     int ret=0;
 
     if( args.pwprompt ) {
