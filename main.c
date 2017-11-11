@@ -206,13 +206,17 @@ static int masterpt;
 
 void window_resize_handler(int signum);
 void sigchld_handler(int signum);
+void term_handler(int signum);
+
+int childpid;
+int term;
 
 int runprogram( int argc, char *argv[] )
 {
     struct winsize ttysize; // The size of our tty
 
     // We need to interrupt a select with a SIGCHLD. In order to do so, we need a SIGCHLD handler
-    signal( SIGCHLD,sigchld_handler );
+    signal( SIGCHLD, sigchld_handler );
 
     // Create a pseudo terminal for our process
     masterpt=posix_openpt(O_RDWR);
@@ -272,7 +276,7 @@ int runprogram( int argc, char *argv[] )
        complete, at which point we no longer need to monitor the TTY anyways.
      */
 
-    int childpid=fork();
+    childpid=fork();
     if( childpid==0 ) {
 	// Child
 
@@ -319,6 +323,15 @@ int runprogram( int argc, char *argv[] )
     // And during the regular run
     sigemptyset(&sigmask);
     sigaddset(&sigmask, SIGCHLD);
+    sigaddset(&sigmask, SIGHUP);
+    sigaddset(&sigmask, SIGTERM);
+    sigaddset(&sigmask, SIGINT);
+    sigaddset(&sigmask, SIGTSTP);
+
+    signal(SIGHUP, term_handler);
+    signal(SIGTERM, term_handler);
+    signal(SIGINT, term_handler);
+    signal(SIGTSTP, term_handler);
 
     sigprocmask( SIG_SETMASK, &sigmask, NULL );
 
@@ -356,6 +369,8 @@ int runprogram( int argc, char *argv[] )
 	} else {
 	    wait_id=waitpid( childpid, &status, 0 );
 	}
+
+        printf("term %d terminate %d\n", term, terminate );
     } while( wait_id==0 || (!WIFEXITED( status ) && !WIFSIGNALED( status )) );
 
     if( terminate>0 )
@@ -506,4 +521,23 @@ void window_resize_handler(int signum)
 // Do nothing handler - makes sure the select will terminate if the signal arrives, though.
 void sigchld_handler(int signum)
 {
+}
+
+void term_handler(int signum)
+{
+    fflush(stdout);
+    switch(signum) {
+    case SIGINT:
+        write(masterpt, "\x03", 1);
+        break;
+    case SIGTSTP:
+        write(masterpt, "\x1a", 1);
+        break;
+    default:
+        if( childpid>0 ) {
+            kill( childpid, signum );
+        }
+    }
+
+    term = 1;
 }
