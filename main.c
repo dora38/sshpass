@@ -373,8 +373,6 @@ int runprogram( int argc, char *argv[] )
 	} else {
 	    wait_id=waitpid( childpid, &status, 0 );
 	}
-
-        printf("term %d terminate %d\n", term, terminate );
     } while( wait_id==0 || (!WIFEXITED( status ) && !WIFSIGNALED( status )) );
 
     if( terminate>0 )
