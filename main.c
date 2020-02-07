@@ -276,9 +276,32 @@ int runprogram( int argc, char *argv[] )
        complete, at which point we no longer need to monitor the TTY anyways.
      */
 
+    sigset_t sigmask, sigmask_select;
+
+    // Set the signal mask during the select
+    sigemptyset(&sigmask_select);
+
+    // And during the regular run
+    sigemptyset(&sigmask);
+    sigaddset(&sigmask, SIGCHLD);
+    sigaddset(&sigmask, SIGHUP);
+    sigaddset(&sigmask, SIGTERM);
+    sigaddset(&sigmask, SIGINT);
+    sigaddset(&sigmask, SIGTSTP);
+
+    sigprocmask( SIG_SETMASK, &sigmask, NULL );
+
+    signal(SIGHUP, term_handler);
+    signal(SIGTERM, term_handler);
+    signal(SIGINT, term_handler);
+    signal(SIGTSTP, term_handler);
+
     childpid=fork();
     if( childpid==0 ) {
 	// Child
+
+        // Re-enable all signals to child
+        sigprocmask( SIG_SETMASK, &sigmask_select, NULL );
 
 	// Detach us from the current TTY
 	setsid();
@@ -315,25 +338,6 @@ int runprogram( int argc, char *argv[] )
     int status=0;
     int terminate=0;
     pid_t wait_id;
-    sigset_t sigmask, sigmask_select;
-
-    // Set the signal mask during the select
-    sigemptyset(&sigmask_select);
-
-    // And during the regular run
-    sigemptyset(&sigmask);
-    sigaddset(&sigmask, SIGCHLD);
-    sigaddset(&sigmask, SIGHUP);
-    sigaddset(&sigmask, SIGTERM);
-    sigaddset(&sigmask, SIGINT);
-    sigaddset(&sigmask, SIGTSTP);
-
-    signal(SIGHUP, term_handler);
-    signal(SIGTERM, term_handler);
-    signal(SIGINT, term_handler);
-    signal(SIGTSTP, term_handler);
-
-    sigprocmask( SIG_SETMASK, &sigmask, NULL );
 
     do {
 	if( !terminate ) {
