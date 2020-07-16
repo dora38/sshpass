@@ -1,0 +1,9 @@
+/.pc/
+/.deps/
+Makefile
+config.h
+config.log
+config.status
+*.o
+sshpass
+stamp-h1
