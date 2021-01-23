@@ -154,7 +154,7 @@ static int parse_options( int argc, char *argv[] )
 	    args.pwtype=PWT_PASS;
 	    args.pwsrc.password=getenv("SSHPASS");
             if( args.pwsrc.password==NULL ) {
-                fprintf(stderr, "sshpass: -e option given but SSHPASS environment variable not set\n");
+                fprintf(stderr, "SSHPASS: -e option given but SSHPASS environment variable not set\n");
 
                 error=RETURN_INVALID_ARGUMENTS;
             }
@@ -324,11 +324,11 @@ int runprogram( int argc, char *argv[] )
 
 	execvp( new_argv[0], new_argv );
 
-	perror("sshpass: Failed to run command");
+	perror("SSHPASS: Failed to run command");
 
 	exit(RETURN_RUNTIME_ERROR);
     } else if( childpid<0 ) {
-	perror("sshpass: Failed to create child process");
+	perror("SSHPASS: Failed to create child process");
 
 	return RETURN_RUNTIME_ERROR;
     }
@@ -404,13 +404,13 @@ int handleoutput( int fd )
 
     if( args.verbose && firsttime ) {
         firsttime=0;
-        fprintf(stderr, "SSHPASS searching for password prompt using match \"%s\"\n", compare1);
+        fprintf(stderr, "SSHPASS: searching for password prompt using match \"%s\"\n", compare1);
     }
 
     int numread=read(fd, buffer, sizeof(buffer)-1 );
     buffer[numread] = '\0';
     if( args.verbose ) {
-        fprintf(stderr, "SSHPASS read: %s\n", buffer);
+        fprintf(stderr, "SSHPASS: read: %s\n", buffer);
     }
 
     state1=match( compare1, buffer, numread, state1 );
@@ -419,14 +419,14 @@ int handleoutput( int fd )
     if( compare1[state1]=='\0' ) {
 	if( !prevmatch ) {
             if( args.verbose )
-                fprintf(stderr, "SSHPASS detected prompt. Sending password.\n");
+                fprintf(stderr, "SSHPASS: detected prompt. Sending password.\n");
 	    write_pass( fd );
 	    state1=0;
 	    prevmatch=1;
 	} else {
 	    // Wrong password - terminate with proper error code
             if( args.verbose )
-                fprintf(stderr, "SSHPASS detected prompt, again. Wrong password. Terminating.\n");
+                fprintf(stderr, "SSHPASS: detected prompt, again. Wrong password. Terminating.\n");
 	    ret=RETURN_INCORRECT_PASSWORD;
 	}
     }
@@ -437,7 +437,7 @@ int handleoutput( int fd )
         // Are we being prompted to authenticate the host?
         if( compare2[state2]=='\0' ) {
             if( args.verbose )
-                fprintf(stderr, "SSHPASS detected host authentication prompt. Exiting.\n");
+                fprintf(stderr, "SSHPASS: detected host authentication prompt. Exiting.\n");
             ret=RETURN_HOST_KEY_UNKNOWN;
         }
     }
@@ -479,6 +479,8 @@ void write_pass( int fd )
 	    if( srcfd!=-1 ) {
 		write_pass_fd( srcfd, fd );
 		close( srcfd );
+	    } else {
+	        fprintf(stderr, "SSHPASS: Failed to open password file \"%s\": %s\n", args.pwsrc.filename, strerror(errno));
 	    }
 	}
 	break;
@@ -547,9 +549,9 @@ void reliable_write( int fd, const void *data, size_t size )
     ssize_t result = write( fd, data, size );
     if( result!=size ) {
         if( result<0 ) {
-            perror("sshpass: write failed");
+            perror("SSHPASS: write failed");
         } else {
-            fprintf(stderr, "sshpass: Short write. Tried to write %lu, only wrote %ld\n", size, result);
+            fprintf(stderr, "SSHPASS: Short write. Tried to write %lu, only wrote %ld\n", size, result);
         }
     }
 }
