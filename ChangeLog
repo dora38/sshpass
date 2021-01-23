@@ -1,3 +1,4 @@
+Version 1.07
 	* Pass signals that should terminate to ssh
 	* Fix race around signal handling
 	* Report IPC errors to stderr

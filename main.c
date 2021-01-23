@@ -1,5 +1,6 @@
 /*  This file is part of "sshpass", a tool for batch running password ssh authentication
- *  Copyright (C) 2006, 2015 Lingnu Open Source Consulting Ltd.
+ *  Copyright (C) 2006 Lingnu Open Source Consulting Ltd.
+ *  Copyright (C) 2015-2016, 2021 Shachar Shemesh
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -169,7 +170,7 @@ static int parse_options( int argc, char *argv[] )
 	case 'V':
 	    printf("%s\n"
                     "(C) 2006-2011 Lingnu Open Source Consulting Ltd.\n"
-                    "(C) 2015-2016 Shachar Shemesh\n"
+                    "(C) 2015-2016, 2021 Shachar Shemesh\n"
 		    "This program is free software, and can be distributed under the terms of the GPL\n"
 		    "See the COPYING file for more information.\n"
                     "\n"
