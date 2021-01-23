@@ -61,6 +61,13 @@ posix_openpt(int flags)
 #endif
 
 int runprogram( int argc, char *argv[] );
+void reliable_write( int fd, const void *data, size_t size );
+int handleoutput( int fd );
+void window_resize_handler(int signum);
+void sigchld_handler(int signum);
+void term_handler(int signum);
+int match( const char *reference, const char *buffer, ssize_t bufsize, int state );
+void write_pass( int fd );
 
 struct {
     enum { PWT_STDIN, PWT_FILE, PWT_FD, PWT_PASS } pwtype;
@@ -198,15 +205,9 @@ int main( int argc, char *argv[] )
     return runprogram( argc-opt_offset, argv+opt_offset );
 }
 
-int handleoutput( int fd );
-
 /* Global variables so that this information be shared with the signal handler */
 static int ourtty; // Our own tty
 static int masterpt;
-
-void window_resize_handler(int signum);
-void sigchld_handler(int signum);
-void term_handler(int signum);
 
 int childpid;
 int term;
@@ -383,9 +384,6 @@ int runprogram( int argc, char *argv[] )
 	return 255;
 }
 
-int match( const char *reference, const char *buffer, ssize_t bufsize, int state );
-void write_pass( int fd );
-
 int handleoutput( int fd )
 {
     // We are looking for the string
@@ -485,8 +483,8 @@ void write_pass( int fd )
 	}
 	break;
     case PWT_PASS:
-	write( fd, args.pwsrc.password, strlen( args.pwsrc.password ) );
-	write( fd, "\n", 1 );
+	reliable_write( fd, args.pwsrc.password, strlen( args.pwsrc.password ) );
+	reliable_write( fd, "\n", 1 );
 	break;
     }
 }
@@ -503,13 +501,13 @@ void write_pass_fd( int srcfd, int dstfd )
 	done=(numread<1);
 	for( i=0; i<numread && !done; ++i ) {
 	    if( buffer[i]!='\n' )
-		write( dstfd, buffer+i, 1 );
+		reliable_write( dstfd, buffer+i, 1 );
 	    else
 		done=1;
 	}
     }
 
-    write( dstfd, "\n", 1 );
+    reliable_write( dstfd, "\n", 1 );
 }
 
 void window_resize_handler(int signum)
@@ -530,10 +528,10 @@ void term_handler(int signum)
     fflush(stdout);
     switch(signum) {
     case SIGINT:
-        write(masterpt, "\x03", 1);
+        reliable_write(masterpt, "\x03", 1);
         break;
     case SIGTSTP:
-        write(masterpt, "\x1a", 1);
+        reliable_write(masterpt, "\x1a", 1);
         break;
     default:
         if( childpid>0 ) {
@@ -542,4 +540,16 @@ void term_handler(int signum)
     }
 
     term = 1;
+}
+
+void reliable_write( int fd, const void *data, size_t size )
+{
+    ssize_t result = write( fd, data, size );
+    if( result!=size ) {
+        if( result<0 ) {
+            perror("sshpass: write failed");
+        } else {
+            fprintf(stderr, "sshpass: Short write. Tried to write %lu, only wrote %ld\n", size, result);
+        }
+    }
 }

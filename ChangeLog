@@ -1,5 +1,6 @@
 	* Pass signals that should terminate to ssh
 	* Fix race around signal handling
+	* Report IPC errors to stderr
 
 Version 1.06
 	* Add -P for overriding the password prompt we search for
