@@ -1,4 +1,5 @@
 	* Report when IP key has changed (Closes Debian bug #730101)
+	* Scrub the environment variable for -e (Closes Ubuntu bug #1649374)
 
 Version 1.07
 	* Pass signals that should terminate to ssh

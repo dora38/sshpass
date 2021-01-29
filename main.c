@@ -80,6 +80,7 @@ struct {
 
     const char *pwprompt;
     int verbose;
+    char *orig_password;
 } args;
 
 static void show_help()
@@ -133,15 +134,7 @@ static int parse_options( int argc, char *argv[] )
 	    VIRGIN_PWTYPE;
 
 	    args.pwtype=PWT_PASS;
-	    args.pwsrc.password=strdup(optarg);
-            
-            // Hide the original password from the command line
-            {
-                int i;
-
-                for( i=0; optarg[i]!='\0'; ++i )
-                    optarg[i]='z';
-            }
+	    args.orig_password=optarg;
 	    break;
         case 'P':
             args.pwprompt=optarg;
@@ -153,12 +146,12 @@ static int parse_options( int argc, char *argv[] )
 	    VIRGIN_PWTYPE;
 
 	    args.pwtype=PWT_PASS;
-	    args.pwsrc.password=getenv("SSHPASS");
-            if( args.pwsrc.password==NULL ) {
-                fprintf(stderr, "SSHPASS: -e option given but SSHPASS environment variable not set\n");
+	    args.orig_password=getenv("SSHPASS");
+	    if( args.orig_password==NULL ) {
+	        fprintf(stderr, "SSHPASS: -e option given but SSHPASS environment variable not set\n");
 
-                error=RETURN_INVALID_ARGUMENTS;
-            }
+	        error=RETURN_INVALID_ARGUMENTS;
+	    }
 	    break;
 	case '?':
 	case ':':
@@ -201,6 +194,16 @@ int main( int argc, char *argv[] )
 	show_help();
 
         return 0;
+    }
+
+    if( args.orig_password!=NULL ) {
+        args.pwsrc.password = strdup(args.orig_password);
+
+        // Hide the original password from prying eyes
+        while( *args.orig_password != '\0' ) {
+            *args.orig_password = 'x';
+            ++args.orig_password;
+        }
     }
 
     return runprogram( argc-opt_offset, argv+opt_offset );
