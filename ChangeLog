@@ -1,3 +1,5 @@
+	* Report when IP key has changed (Closes Debian bug #730101)
+
 Version 1.07
 	* Pass signals that should terminate to ssh
 	* Fix race around signal handling
