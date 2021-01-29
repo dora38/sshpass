@@ -1,3 +1,4 @@
+Version 1.09
 	* Explicitly set the controlling TTY (SF patch #7)
 
 Version 1.08
