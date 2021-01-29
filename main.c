@@ -312,6 +312,15 @@ int runprogram( int argc, char *argv[] )
         setsid();
         // This line makes the ptty our controlling tty. We do not otherwise need it open
         slavept=open(name, O_RDWR );
+#ifdef TIOCSCTTY
+        // On some systems, an open(2) is insufficient to set the
+        // controlling tty (see the documentation for TIOCSCTTY in
+        // tty(4)).
+        if (ioctl(slavept, TIOCSCTTY) == -1) {
+            perror("sshpass: Failed to set controlling terminal in child (TIOCSCTTY)");
+            exit(RETURN_RUNTIME_ERROR);
+        }
+#endif
         close( slavept );
 
         close( masterpt );

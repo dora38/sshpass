@@ -1,3 +1,5 @@
+	* Explicitly set the controlling TTY (SF patch #7)
+
 Version 1.08
 	* Report when IP key has changed (Closes Debian bug #730101)
 	* Scrub the environment variable for -e (Closes Ubuntu bug #1649374)
