@@ -1,3 +1,16 @@
+Version 1.09
+	* Explicitly set the controlling TTY (SF patch #7)
+
+Version 1.08
+	* Report when IP key has changed (Closes Debian bug #730101)
+	* Scrub the environment variable for -e (Closes Ubuntu bug #1649374)
+
+Version 1.07
+	* Pass signals that should terminate to ssh
+	* Fix race around signal handling
+	* Report IPC errors to stderr
+	* Report if can't open -f password file (closes #3)
+
 Version 1.06
 	* Add -P for overriding the password prompt we search for
 	* Add -v for verbose logging of the prompt detection prompt.
